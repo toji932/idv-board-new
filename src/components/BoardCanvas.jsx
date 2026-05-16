@@ -140,7 +140,7 @@ function BoardCanvas({
           return (
             <div
               key={piece.id}
-              className={`piece ${selected ? "selected" : ""}`}
+              className={`piece piece-${piece.role || "unknown"} ${selected ? "selected" : ""}`}
               style={{
                 left: `${piece.x * 100}%`,
                 top: `${piece.y * 100}%`,

@@ -350,9 +350,24 @@ button:hover {
   min-height: 5.3cqw;
 }
 
-.piece.selected {
+.piece-survivor {
   border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+}
+
+.piece-hunter {
+  border-color: #dc2626;
+}
+
+.piece.selected {
+  box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.20);
+}
+
+.piece-survivor.selected {
+  border-color: #1d4ed8;
+}
+
+.piece-hunter.selected {
+  border-color: #b91c1c;
 }
 
 .piece-icon {

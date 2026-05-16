@@ -163,7 +163,7 @@ function BulkExportPanel({ onApplyJob, onExportPngZip, onExportPdf }) {
         </div>
       </div>
 
-      <div className="hint">複数指定はカンマ区切りです。条件はAND一致です。使用キャラEを複数指定した場合、出力順は入力順で固定されます。</div>
+      <div className="hint">複数指定はカンマ区切りです。使用キャラEは除外条件ではなく優先出力順です。指定キャラを先頭にし、その後ろに指定外の使用キャラEもキャラごと・日付順で出力します。</div>
 
       <div className="button-row bulk-actions">
         <button onClick={clearFilters}>条件クリア</button>

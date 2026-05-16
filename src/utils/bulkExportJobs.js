@@ -224,7 +224,6 @@ export function filterExportJobs(jobs, filters) {
     if (!matchesOne(findValueByHeader(row, ["pick_M1", "pick_M", "マップ"]), filters.pickM1)) return false;
     if (!matchesOne(findValueByHeader(row, ["S"]), filters.survivorTeam)) return false;
     if (!matchesOne(findValueByHeader(row, ["H"]), filters.hunterTeam)) return false;
-    if (!matchesOne(findValueByHeader(row, ["使用キャラE"]), filters.hunterCharacter)) return false;
     if (!matchesOne(findValueByHeader(row, ["使用者E"]), filters.hunterPlayer)) return false;
 
     const q = toText(filters.keyword).toLowerCase();

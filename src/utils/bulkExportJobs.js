@@ -306,53 +306,60 @@ function compareHalf(a, b) {
   return compareText(a, b);
 }
 
-function compareJobDateWithinCharacter(a, b) {
-  const aMeta = a?.meta || {};
-  const bMeta = b?.meta || {};
-
-  return (
-    compareDateLike(aMeta.date, bMeta.date) ||
-    compareText(aMeta.r, bMeta.r) ||
-    compareHalf(aMeta.half, bMeta.half) ||
-    compareText(aMeta.home, bMeta.home) ||
-    compareText(aMeta.away, bMeta.away) ||
-    compareText(a.sourceName, b.sourceName) ||
-    compareText(a.sheetName, b.sheetName) ||
-    ((a.rowIndex || 0) - (b.rowIndex || 0))
-  );
-}
-
 export function sortExportJobsByHunterCharacterOrder(jobs, hunterCharacterFilter) {
   const orderTerms = splitTerms(hunterCharacterFilter);
+
+  if (!orderTerms.length) {
+    return [...(jobs || [])].sort((a, b) => {
+      const aMeta = a?.meta || {};
+      const bMeta = b?.meta || {};
+
+      return (
+        compareText(a?.hunter?.character, b?.hunter?.character) ||
+        compareDateLike(aMeta.date, bMeta.date) ||
+        compareText(aMeta.r, bMeta.r) ||
+        compareHalf(aMeta.half, bMeta.half) ||
+        compareText(aMeta.home, bMeta.home) ||
+        compareText(aMeta.away, bMeta.away) ||
+        compareText(a.sourceName, b.sourceName) ||
+        compareText(a.sheetName, b.sheetName) ||
+        ((a.rowIndex || 0) - (b.rowIndex || 0))
+      );
+    });
+  }
+
   const orderMap = new Map(
     orderTerms.map((name, index) => [normalizeForCompare(name), index])
   );
 
   return [...(jobs || [])].sort((a, b) => {
-    const aCharRaw = a?.hunter?.character || "";
-    const bCharRaw = b?.hunter?.character || "";
-    const aChar = normalizeForCompare(aCharRaw);
-    const bChar = normalizeForCompare(bCharRaw);
+    const aChar = normalizeForCompare(a?.hunter?.character);
+    const bChar = normalizeForCompare(b?.hunter?.character);
 
-    const aSpecified = orderMap.has(aChar);
-    const bSpecified = orderMap.has(bChar);
+    const aRank = orderMap.has(aChar)
+      ? orderMap.get(aChar)
+      : Number.MAX_SAFE_INTEGER;
 
-    // ① 使用キャラEを指定した場合は、指定キャラを必ず前に出す
-    if (aSpecified !== bSpecified) return aSpecified ? -1 : 1;
+    const bRank = orderMap.has(bChar)
+      ? orderMap.get(bChar)
+      : Number.MAX_SAFE_INTEGER;
 
-    // ② 指定キャラ同士は、入力された指定順を守る
-    if (aSpecified && bSpecified) {
-      const rankDiff = orderMap.get(aChar) - orderMap.get(bChar);
-      if (rankDiff !== 0) return rankDiff;
-    }
+    // ① 最優先：使用キャラEの指定順
+    if (aRank !== bRank) return aRank - bRank;
 
-    // ③ 指定外キャラ同士は、使用キャラEごとにまとまるように並べる
-    if (!aSpecified && !bSpecified) {
-      const charDiff = compareText(aCharRaw, bCharRaw);
-      if (charDiff !== 0) return charDiff;
-    }
+    const aMeta = a?.meta || {};
+    const bMeta = b?.meta || {};
 
-    // ④ 同じ使用キャラEの中は日付順
-    return compareJobDateWithinCharacter(a, b);
+    // ② 同じ使用キャラEの中だけ日付順
+    return (
+      compareDateLike(aMeta.date, bMeta.date) ||
+      compareText(aMeta.r, bMeta.r) ||
+      compareHalf(aMeta.half, bMeta.half) ||
+      compareText(aMeta.home, bMeta.home) ||
+      compareText(aMeta.away, bMeta.away) ||
+      compareText(a.sourceName, b.sourceName) ||
+      compareText(a.sheetName, b.sheetName) ||
+      ((a.rowIndex || 0) - (b.rowIndex || 0))
+    );
   });
 }

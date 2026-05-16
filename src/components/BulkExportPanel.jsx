@@ -41,10 +41,12 @@ function BulkExportPanel({ onApplyJob, onExportPngZip, onExportPdf }) {
       const nextFiles = [];
       const nextJobs = [];
 
-      for (const file of files) {
+      for (let fileIndex = 0; fileIndex < files.length; fileIndex += 1) {
+        const file = files[fileIndex];
         const workbook = await readWorkbookFile(file);
-        nextFiles.push({ name: file.name, sheetNames: workbook.SheetNames });
-        nextJobs.push(...buildExportJobsFromWorkbook(workbook, file.name));
+        const sourceName = files.length > 1 ? `${fileIndex + 1}_${file.name}` : file.name;
+        nextFiles.push({ name: sourceName, sheetNames: workbook.SheetNames });
+        nextJobs.push(...buildExportJobsFromWorkbook(workbook, sourceName));
       }
 
       setLoadedFiles(nextFiles);
@@ -163,7 +165,10 @@ function BulkExportPanel({ onApplyJob, onExportPngZip, onExportPdf }) {
         </div>
       </div>
 
-      <div className="hint">複数指定はカンマ区切りです。使用キャラEは除外条件ではなく優先出力順です。指定キャラを先頭にし、その後ろに指定外の使用キャラEもキャラごと・日付順で出力します。</div>
+      <div className="hint">
+        複数指定はカンマ区切りです。条件はAND一致です。ExcelファイルはCtrlキーまたはShiftキーで複数選択できます。
+        使用キャラEは除外条件ではなく優先出力順です。指定キャラを先頭にし、その後ろに指定外の使用キャラEもキャラごと・日付順で出力します。
+      </div>
 
       <div className="button-row bulk-actions">
         <button onClick={clearFilters}>条件クリア</button>

@@ -336,11 +336,14 @@ export function sortExportJobsByHunterCharacterOrder(jobs, hunterCharacterFilter
     const aChar = normalizeForCompare(a?.hunter?.character);
     const bChar = normalizeForCompare(b?.hunter?.character);
 
-    const aRank = orderMap.has(aChar)
+    const aIsPreferred = orderMap.has(aChar);
+    const bIsPreferred = orderMap.has(bChar);
+
+    const aRank = aIsPreferred
       ? orderMap.get(aChar)
       : Number.MAX_SAFE_INTEGER;
 
-    const bRank = orderMap.has(bChar)
+    const bRank = bIsPreferred
       ? orderMap.get(bChar)
       : Number.MAX_SAFE_INTEGER;
 
@@ -350,7 +353,14 @@ export function sortExportJobsByHunterCharacterOrder(jobs, hunterCharacterFilter
     const aMeta = a?.meta || {};
     const bMeta = b?.meta || {};
 
-    // ② 同じ使用キャラEの中だけ日付順
+    // ② 指定外キャラ同士は、まず使用キャラEごとにまとめる
+    //    ここを入れないと「指定外全体で日付順」になり、キャラが混在する。
+    if (!aIsPreferred && !bIsPreferred) {
+      const charCompare = compareText(a?.hunter?.character, b?.hunter?.character);
+      if (charCompare) return charCompare;
+    }
+
+    // ③ 同じ使用キャラEの中だけ日付順
     return (
       compareDateLike(aMeta.date, bMeta.date) ||
       compareText(aMeta.r, bMeta.r) ||
